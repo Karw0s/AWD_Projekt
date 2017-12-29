@@ -272,13 +272,19 @@ server <- function(input, output) {
                       "Polska" = 1,
                       "Wojewodztwo" = 2:17
     )
-    powtorz = 1
-    lata_powt = 1
-    if (obszar == 1) {
-      powtorz <- 1
+    
+    isPolska <- switch (input$obszar,
+                      "Polska" = TRUE,
+                      "Wojewodztwo" = FALSE
+    )
+    
+    powtorz = NULL
+    lata_powt = NULL
+    if (isPolska) {
+      powtorz = 1
       lata_powt = 1
     }else {
-      powtorz <- 8
+      powtorz = 8
       lata_powt = 16
     }
      
@@ -318,8 +324,9 @@ server <- function(input, output) {
     srodek <- dane_plot[obszar, rok(years[1] + 1, years[2] + 1)]
     vex = NULL
     
-    for (variable in rok(years[1], years[2])) {
-      vex <- c(vex, srodek[, variable])
+    ddddd <- rok(years[1], years[2])
+    for (variable in rok(years[1] + 1, years[2] + 1)) {
+      vex <- c(vex, dane_plot[obszar, variable])
     }
     # vex <-c(srodek[, 1],
     #         srodek[, 2],
