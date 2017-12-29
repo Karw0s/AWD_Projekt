@@ -299,19 +299,25 @@ server <- function(input, output) {
      #bins <- seq(min(x), max(x), length.out = input$bins + 1)
     
     
-    woje <- rep(dane_plot[obszar, 1], powtorz)
+    woje <- rep(dane_plot[obszar, 1], (rozpietosc+1))
     
-    lata <-c(rep("2009", lata_powt),
-             rep("2010", lata_powt),
-             rep("2011", lata_powt),
-             rep("2012", lata_powt),
-             rep("2013", lata_powt),
-             rep("2014", lata_powt),
-             rep("2015", lata_powt),
-             rep("2016", lata_powt))
+    lata = NULL
+    for (i in rok(years[1] - 1, years[2] - 1)) {
+      lata = c(lata, rep( as.character(2009 + i), lata_powt))
+    }
     
-    srodek <- dane_plot[obszar, rok(years[1]+1, years[2]+1)]
+    # lata <-c(rep("2009", lata_powt),
+    #          rep("2010", lata_powt),
+    #          rep("2011", lata_powt),
+    #          rep("2012", lata_powt),
+    #          rep("2013", lata_powt),
+    #          rep("2014", lata_powt),
+    #          rep("2015", lata_powt),
+    #          rep("2016", lata_powt))
+    
+    srodek <- dane_plot[obszar, rok(years[1] + 1, years[2] + 1)]
     vex = NULL
+    
     for (variable in rok(years[1], years[2])) {
       vex <- c(vex, srodek[, variable])
     }
@@ -327,7 +333,7 @@ server <- function(input, output) {
     dane_gg <- data.frame(woje, vex)
     
     dane_gg$woje <- factor(dane_gg$woje,
-                           levels =  dane_plot[2:17, 1])
+                           levels =  dane_plot[obszar, 1])
     
     p <-ggplot(dane_gg, aes(woje, vex))
     p +
