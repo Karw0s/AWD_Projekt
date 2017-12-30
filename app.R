@@ -323,6 +323,24 @@ server <- function(input, output) {
     })
     
     output$mapPlot <- renderPlot({
+        library("sp")
+        library("rgdal")
+        download.file("http://www.gis-support.pl/downloads/wojewodztwa.zip", "wojewodztwa.zip") #ściągamy plik z shapefilem
+        unzip("wojewodztwa.zip", exdir=".") #rozpakowujemy plik
+        
+        pol <- readRDS("shapefiles/POL_adm1.rds")
+        plot(pol)
+        
+        
+        
+        ggplot(data = pol)+
+            geom_polygon(
+                         aes(x = long, y = lat, group = group))+
+            coord_fixed()
+        
+        
+        poland.map <- readOGR("wojewodztwa.shp", layer = "wojewodztwa")
+        
         EPSG <- make_EPSG()
         EPSG[grepl("WGS 84$", EPSG$note), ]
         poland.map <- spTransform(poland.map, CRS("+init=epsg:4326")) #WGS-84
