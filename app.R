@@ -306,7 +306,7 @@ server <- function(input, output) {
                                levels =  dane_plot[obszar_rozp, 1])
         
         p <- ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk)) +
-            geom_bar(stat = "identity", aes(fill = rok), position = position_dodge(), color="black") +
+            geom_bar(stat = "identity", aes(fill = rok), position = position_dodge(), color="black",size = .3) +
             theme(
                 axis.text.x = element_text(
                     angle = 90,
@@ -319,7 +319,7 @@ server <- function(input, output) {
             ) +
             xlab("Obszar") +
             ylab("[szt]") +
-            labs(fill= "")+
+            labs(fill= "Rok")+
             scale_y_continuous(labels = comma)
         p <- ggplotly(p) %>% layout(margin = list(b = 160), legend = list(x = 100, y = 0.5),
                                     xaxis = list(title = ""), yaxis = list(title = "[szt]"))
