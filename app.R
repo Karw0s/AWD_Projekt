@@ -214,6 +214,7 @@ ui <- fluidPage(
             tabsetPanel(
                 type = "tabs",
                 tabPanel("Wykres słupkowy", plotlyOutput("dispPlot", height = 600)),
+                tabPanel("Mapa", plotOutput("mapPlot")),
                 tabPanel("Podglad danych", tableOutput("table"))
             ), 
             width = 9
@@ -319,6 +320,27 @@ server <- function(input, output) {
             scale_y_continuous(labels = comma)
         p <- ggplotly(p) %>% layout(margin = list(b = 160), legend = list(x = 100, y = 0.5),
                                     xaxis = list(title = ""), yaxis = list(title = "[szt]"))
+    })
+    
+    output$mapPlot <- renderPlot({
+        EPSG <- make_EPSG()
+        EPSG[grepl("WGS 84$", EPSG$note), ]
+        poland.map <- spTransform(poland.map, CRS("+init=epsg:4326")) #WGS-84
+        poland.map.gg <- fortify(poland.map, region="nazwa")
+        head(poland.map.gg, n=2)
+        poland.map.gg <- merge(poland.map.gg, poland.map@data, by.x="id", by.y="nazwa", sort=FALSE)
+        head(poland.map.gg, n=2)
+        
+        map <- ggplot() +
+            geom_polygon(data = poland.map.gg, 
+                         aes(long, lat, group = group, 
+                             fill = straze), 
+                         colour = "black", lwd=0.1) +
+            ggtitle("Mapa Polski") +
+            labs(x = "E", y = "N", fill = "Liczba\njednostek SP")
+        
+        
+        map + scale_fill_gradient(low = "white", high = "red")
     })
     
     output$table <- renderTable({
