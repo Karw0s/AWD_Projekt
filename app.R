@@ -178,13 +178,7 @@ ui <- fluidPage(
                 sep = ""
             ),
             
-            # dateRangeInput("dates",h3("Date range"),
-            #                format = "yyyy",
-            #                start = "2009-01-01",
-            #                min = "2009-01-01",
-            #                end = "2016-12-31",
-            #                max = "2016-12-31",
-            #                startview = "year"),
+            
             
             
             helpText("Wybierz obszar zainteresowania"),
@@ -214,18 +208,26 @@ ui <- fluidPage(
                     "motocykle o pojemnosci silnika do 125 cm3"
                 )
             )
-            
+        
         ),
         
         # Show a plot of the generated distribution
-        mainPanel(textOutput("selected_range"),
-                  plotlyOutput("dispPlot", height = 600),
-                  width = 9)
+        mainPanel(
+            textOutput("selected_range"),
+            tabsetPanel(
+                type = "tabs",
+                tabPanel("Slupkowy", plotlyOutput("dispPlot", height = 600)),
+                tabPanel("Kolowy", plotOutput("piePlot", height = 600)),
+                tabPanel("Podglad danych", tableOutput("table"))
+            ), 
+            width = 9
+        )
     )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+    
   
     przedzial_rok <- function(start_year, end_year) {
         index_one <- start_year - 2009
@@ -325,6 +327,98 @@ server <- function(input, output) {
                                     xaxis = list(title = ""), yaxis = list(title = "[szt]"))
         
         
+    })
+    
+    output$piePlot <- renderPlot({
+        dane_plot <- switch (input$rodzaj,
+                             "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "motocykle" = motocykle_ogolem,
+                             "samochody osobowe" = samochody_osobowe,
+                             "autobusy" = autobusy_ogolem,
+                             "samochody ciezarowe" = samochody_ciezarowe,
+                             "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "ciagniki samochodowe" = ciagniki_samochodowe,
+                             "ciagniki siodlowe" = ciagniki_siodlowe,
+                             "ciagniki rolnicze" = ciagniki_rolnicze,
+                             "motorowery" = motorowery,
+                             "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+        )
+        
+        obszar_rozp <- switch (input$obszar,
+                               "Polska" = 1,
+                               "Wojewodztwa" = 2:17
+        )
+        
+        isPolska <- switch (input$obszar,
+                            "Polska" = TRUE,
+                            "Wojewodztwa" = FALSE
+        )
+        
+        powtorz = NULL
+        lata_powt = NULL
+        if (isPolska) {
+            powtorz = 1
+            lata_powt = 1
+        } else {
+            powtorz = 8
+            lata_powt = 16
+        }
+        
+        years <- input$bins
+        
+        rozpietosc <- years[2] - years[1]
+        starting <- years[1] - 2009
+        
+        obszar_nazwa <- rep(dane_plot[obszar_rozp, 1], (rozpietosc + 1))
+        
+        rok = NULL
+        
+        for (i in przedzial_rok(years[1] - 1, years[2] - 1)) {
+            rok = c(rok, rep(as.character(2009 + i), lata_powt))
+        }
+        
+        srodek <- dane_plot[obszar_rozp, przedzial_rok(years[1] + 1, years[2] + 1)]
+        
+        liczba_sztuk = NULL
+        
+        for (variable in przedzial_rok(years[1] + 1, years[2] + 1)) {
+            liczba_sztuk <- c(liczba_sztuk, dane_plot[obszar_rozp, variable])
+        }
+        
+        dane_gg <- data.frame(obszar_nazwa, liczba_sztuk)
+        
+        dane_gg$woje <- factor(dane_gg$obszar_nazwa,
+                               levels =  dane_plot[obszar_rozp, 1])
+        
+        p <- ggplot(dane_gg, aes(obszar_nazwa)) +
+            geom_bar(
+                stat = "identity",
+                aes(y = liczba_sztuk / sum(liczba_sztuk), fill = obszar_nazwa),
+                color = "black",
+                width = 1,
+                size = .3
+            ) +
+            theme(
+                axis.text.x = element_text(
+                    face = "bold",
+                    colour = "black",
+                    hjust = 1
+                ),
+                axis.title.x = element_blank(),
+                legend.title = element_text(face = "bold")
+            ) +
+            xlab("Obszar") +
+            ylab("[szt]") +
+            labs(fill= "Rok")+
+            scale_y_continuous(labels = percent)
+        # p
+        pie <- p + coord_polar("y")
+        pie
+    })
+    
+    output$table <- renderTable({
+        daneXLS
     })
 }
 
