@@ -14,7 +14,7 @@ daneXLS <- read_excel("data/dane.xls", sheet = "dane")
 
 #tworzenie tabel z rodzajami pojazdow
 pojazdy_samochodowe_i_ciagniki = sqldf("select 
-                                         Nazwa,
+                                       Nazwa,
                                        pojazdy_samochodowe_i_ciagniki_2009 as '2009',
                                        pojazdy_samochodowe_i_ciagniki_2010 as '2010',
                                        pojazdy_samochodowe_i_ciagniki_2011 as '2011',
@@ -133,228 +133,196 @@ ciagniki_rolnicze = sqldf("select
                           ciagniki_rolnicze_2016 as '2016'
                           from daneXLS")
 
-  motorowery = sqldf("select 
-                     Nazwa,
-                     motorowery_2009 as '2009',
-                     motorowery_2010 as '2010',
-                     motorowery_2011 as '2011',
-                     motorowery_2012 as '2012',
-                     motorowery_2013 as '2013',
-                     motorowery_2014 as '2014',
-                     motorowery_2015 as '2015',
-                     motorowery_2016 as '2016'
-                     from daneXLS")
+motorowery = sqldf("select
+                   Nazwa,
+                   motorowery_2009 as '2009',
+                   motorowery_2010 as '2010',
+                   motorowery_2011 as '2011',
+                   motorowery_2012 as '2012',
+                   motorowery_2013 as '2013',
+                   motorowery_2014 as '2014',
+                   motorowery_2015 as '2015',
+                   motorowery_2016 as '2016'
+                   from daneXLS")
 
-  motocykle_o_pojemnosci_silnika_do_125_cm3 = sqldf("select 
-                                                    Nazwa,
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2009 as '2009',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2010 as '2010',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2011 as '2011',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2012 as '2012',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2013 as '2013',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2014 as '2014',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2015 as '2015',
-                                                    motocykle_o_pojemnosci_silnika_do_125_cm3_2016 as '2016'
-                                                    from daneXLS")
+motocykle_o_pojemnosci_silnika_do_125_cm3 = sqldf("select
+                                                  Nazwa,
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2009 as '2009',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2010 as '2010',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2011 as '2011',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2012 as '2012',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2013 as '2013',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2014 as '2014',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2015 as '2015',
+                                                  motocykle_o_pojemnosci_silnika_do_125_cm3_2016 as '2016'
+                                                  from daneXLS")
 
-# Define UI for application that draws a histogram
+# Define UI for application
 ui <- fluidPage(
-   
-  # Application title
-  titlePanel("Pojazdy w Polsce"), 
-   
-  # Sidebar
-  sidebarLayout(
-    sidebarPanel(
-      
-      width = 3,
+    # Application title
+    titlePanel("Pojazdy w Polsce"),
+    
+    # Sidebar
+    sidebarLayout(
+        sidebarPanel(
+            width = 3,
+            
+            helpText("Wybierz przedział czasowy:"),
+            sliderInput(
+                "bins",
+                "Zakres czasu:",
+                min = 2009,
+                max = 2016,
+                value = c(2009, 2016),
+                sep = ""
+            ),
+            
+            # dateRangeInput("dates",h3("Date range"),
+            #                format = "yyyy",
+            #                start = "2009-01-01",
+            #                min = "2009-01-01",
+            #                end = "2016-12-31",
+            #                max = "2016-12-31",
+            #                startview = "year"),
+            
+            
+            helpText("Wybierz obszar zainteresowania"),
+            selectInput(
+                inputId = "obszar",
+                label = "Obszar:",
+                choices = c("Polska", "Wojewodztwa"),
+                selected = "Polska"
+            ),
+            
+            helpText("Wybierz rodzaj pojazdów"),
+            selectInput(
+                inputId = "rodzaj",
+                label = "Rodzaje pojazdów",
+                choices = c(
+                    "pojazdy samochodowe i ciagniki",
+                    "motocykle ogolem",
+                    "samochody osobowe",
+                    "autobusy ogolem",
+                    "samochody ciezarowe",
+                    "samochody ciezorowo - osobowe",
+                    "samochody specjalne (lacznie z sanitarnymi)",
+                    "ciagniki samochodowe",
+                    "ciagniki siodlowe",
+                    "ciagniki rolnicze",
+                    "motorowery",
+                    "motocykle o pojemnosci silnika do 125 cm3"
+                )
+            )
+            
+        ),
         
-      helpText("Wybierz przedział czasowy:"),
-      sliderInput(
-        "bins",
-        "Zakres czasu:",
-        min = 2009,
-        max = 2016,
-        value = c(2009, 2016),
-        sep = ""
-      ), 
-        
-        # dateRangeInput("dates",h3("Date range"), 
-        #                format = "yyyy", 
-        #                start = "2009-01-01", 
-        #                min = "2009-01-01", 
-        #                end = "2016-12-31", 
-        #                max = "2016-12-31",
-        #                startview = "year"),
-      
-      
-      helpText("Wybierz obszar zainteresowania"),
-      selectInput(
-        inputId = "obszar",
-        label = "Obszar:",
-        choices = c("Polska", "Wojewodztwa"),
-        selected = "Polska"
-      ), 
-        
-      helpText("Wybierz rodzaj pojazdów"),
-      selectInput(
-        inputId = "rodzaj",
-        label = "Rodzaje pojazdów",
-        choices = c(
-          "pojazdy samochodowe i ciagniki",
-          "motocykle ogolem",
-          "samochody osobowe",
-          "autobusy ogolem",
-          "samochody ciezarowe",
-          "samochody ciezorowo - osobowe",
-          "samochody specjalne (lacznie z sanitarnymi)",
-          "ciagniki samochodowe",
-          "ciagniki siodlowe",
-          "ciagniki rolnicze",
-          "motorowery",
-          "motocykle o pojemnosci silnika do 125 cm3")
-      )
-      
-    ), 
-      
-      # Show a plot of the generated distribution
-    mainPanel(textOutput("selected_range"),
-              
-              plotOutput("distPlot"))
-  )
+        # Show a plot of the generated distribution
+        mainPanel(textOutput("selected_range"),
+                  plotOutput("distPlot"),
+                  width = 9)
+    )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  
-  
-  
-  
-  rok <- function(start_year, end_year){
-    index_one <- start_year - 2009
-    if (start_year==end_year) {
-      return((index_one + 1))
-    } else {
-      index_two <- end_year - start_year
-      result <- (index_one + 1) : ((index_one + index_two) + 1)
-      return(result)
+    rok <- function(start_year, end_year) {
+        index_one <- start_year - 2009
+        if (start_year == end_year) {
+            return((index_one + 1))
+        } else {
+            index_two <- end_year - start_year
+            result <- (index_one + 1):((index_one + index_two) + 1)
+            return(result)
+        }
     }
-  }
   
-  output$selected_range <- renderText({
-    paste("selected: ", input$rodzaj)
-  })
+    output$selected_range <- renderText({
+        paste("Wybrano: ", input$rodzaj)
+    })
   
-  output$distPlot <- renderPlot({
-    dane_plot <- switch (input$rodzaj,
-                        "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
-                        "motocykle ogolem" = motocykle_ogolem,
-                        "samochody osobowe" = samochody_osobowe,
-                        "autobusy ogolem" = autobusy_ogolem,
-                        "samochody ciezarowe" = samochody_ciezarowe,
-                        "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
-                        "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
-                        "ciagniki samochodowe" = ciagniki_samochodowe,
-                        "ciagniki siodlowe" = ciagniki_siodlowe,
-                        "ciagniki rolnicze" = ciagniki_rolnicze,
-                        "motorowery" = motorowery,
-                        "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
-    )
+    output$distPlot <- renderPlot({
+        
+        dane_plot <- switch (input$rodzaj,
+                             "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "motocykle ogolem" = motocykle_ogolem,
+                             "samochody osobowe" = samochody_osobowe,
+                             "autobusy ogolem" = autobusy_ogolem,
+                             "samochody ciezarowe" = samochody_ciezarowe,
+                             "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "ciagniki samochodowe" = ciagniki_samochodowe,
+                             "ciagniki siodlowe" = ciagniki_siodlowe,
+                             "ciagniki rolnicze" = ciagniki_rolnicze,
+                             "motorowery" = motorowery,
+                             "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+        )
      
-    obszar_rozp <- switch (input$obszar,
-                      "Polska" = 1,
-                      "Wojewodztwa" = 2:17
-    )
+        obszar_rozp <- switch (input$obszar,
+                               "Polska" = 1,
+                               "Wojewodztwa" = 2:17
+        )
     
-    isPolska <- switch (input$obszar,
-                      "Polska" = TRUE,
-                      "Wojewodztwa" = FALSE
-    )
+        isPolska <- switch (input$obszar,
+                            "Polska" = TRUE,
+                            "Wojewodztwa" = FALSE
+        )
     
-    powtorz = NULL
-    lata_powt = NULL
-    if (isPolska) {
-      powtorz = 1
-      lata_powt = 1
-    }else {
-      powtorz = 8
-      lata_powt = 16
-    }
+        powtorz = NULL
+        lata_powt = NULL
+        if (isPolska) {
+            powtorz = 1
+            lata_powt = 1
+        } else {
+            powtorz = 8
+            lata_powt = 16
+        }
      
-    years <- input$bins
+        years <- input$bins
+        
+        rozpietosc <- years[2] - years[1]
+        starting <- years[1] - 2009
     
-    rozpietosc <- years[2] - years[1]
-    starting <- years[1] - 2009
+        obszar_nazwa <- rep(dane_plot[obszar_rozp, 1], (rozpietosc + 1))
+        
+        lata = NULL
+        
+        for (i in rok(years[1] - 1, years[2] - 1)) {
+            lata = c(lata, rep(as.character(2009 + i), lata_powt))
+        }
     
-    x <- t(dane_plot)
-    colnames(x) = x[1, ]       # the first row will be the header
-    x = x[-1, ]                # removing the first row.
-
-    names_col <- colnames(dane_plot)
-    names_col = names_col[-1]
-    fffff <- data.frame(x[,2:17])
-      #x[rok(years[1], years[2]), obszar]
+        srodek <- dane_plot[obszar_rozp, rok(years[1] + 1, years[2] + 1)]
+        
+        liczba_sztuk = NULL
+        
+        for (variable in rok(years[1] + 1, years[2] + 1)) {
+            liczba_sztuk <- c(liczba_sztuk, dane_plot[obszar_rozp, variable])
+        }
+        
+        dane_gg <- data.frame(obszar_nazwa, liczba_sztuk)
+        
+        dane_gg$woje <- factor(dane_gg$obszar_nazwa,
+                               levels =  dane_plot[obszar_rozp, 1])
     
-     #bins <- seq(min(x), max(x), length.out = input$bins + 1)
+        p <- ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk))
+        p +
+            geom_bar(stat = "identity", aes(fill = lata), position = "dodge") +
+            theme(
+                axis.text.x = element_text(
+                    angle = 90,
+                    face = "bold",
+                    colour = "black",
+                    hjust = 1
+                ),
+                axis.title.x = element_blank(),
+                legend.title = element_text(face = "bold")
+            ) +
+            xlab("Obszar") +
+            ylab("[szt]") +
+            labs(fill= "Rok")+
+            scale_y_continuous(labels = comma)
     
-    
-    obszar_nazwa <- rep(dane_plot[obszar_rozp, 1], (rozpietosc+1))
-    
-    lata = NULL
-    
-    for (i in rok(years[1] - 1, years[2] - 1)) {
-      lata = c(lata, rep( as.character(2009 + i), lata_powt))
-    }
-    
-    # lata <-c(rep("2009", lata_powt),
-    #          rep("2010", lata_powt),
-    #          rep("2011", lata_powt),
-    #          rep("2012", lata_powt),
-    #          rep("2013", lata_powt),
-    #          rep("2014", lata_powt),
-    #          rep("2015", lata_powt),
-    #          rep("2016", lata_powt))
-    
-    srodek <- dane_plot[obszar_rozp, rok(years[1] + 1, years[2] + 1)]
-    
-    liczba_sztuk = NULL
-    
-    for (variable in rok(years[1] + 1, years[2] + 1)) {
-        liczba_sztuk <- c(liczba_sztuk, dane_plot[obszar_rozp, variable])
-    }
-    # liczba_sztuk <-c(srodek[, 1],
-    #         srodek[, 2],
-    #         srodek[, 3],
-    #         srodek[, 4],
-    #         srodek[, 5],
-    #         srodek[, 6],
-    #         srodek[, 7],
-    #         srodek[, 8])
-    
-    dane_gg <- data.frame(obszar_nazwa
-                         , liczba_sztuk)
-    
-    dane_gg$woje <- factor(dane_gg$obszar_nazwa,
-                           levels =  dane_plot[obszar_rozp, 1])
-    
-    p <-ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk))
-    p +
-    geom_bar(stat = "identity", aes(fill = lata), position = "dodge" ) + 
-    theme(axis.text.x = element_text(angle=90, face="bold", colour="black", hjust = 1), axis.title.x = element_blank()) +
-    xlab("Obszar") + 
-    ylab("[szt]") +
-    scale_y_continuous(labels = comma)
-    
-    # barplot(data[obszar, rok(years[1], years[2])],
-    #         
-    #         names.arg = colnames(data[obszar, starting:(starting + rozpietosc)]),
-    #         legend = names_col[rok(years[1], years[2])]
-    #         #beside = TRUE
-    #         #col = c("lightblue", "mistyrose", "lightcyan", "lavender") 
-    # )
-    
-  })
+    })
 }
 
 # Run the application 
