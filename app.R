@@ -325,8 +325,6 @@ server <- function(input, output) {
     output$mapPlot <- renderPlot({
         library("sp")
         library("rgdal")
-        download.file("http://www.gis-support.pl/downloads/wojewodztwa.zip", "wojewodztwa.zip") #ściągamy plik z shapefilem
-        unzip("wojewodztwa.zip", exdir=".") #rozpakowujemy plik
         
         pol <- readRDS("shapefiles/POL_adm1.rds")
         plot(pol)
@@ -339,13 +337,79 @@ server <- function(input, output) {
             coord_fixed()
         
         
-        poland.map <- readOGR("wojewodztwa.shp", layer = "wojewodztwa")
+        poland.map <- readOGR(dsn="wojewodztwa", "wojewodztwa")
+        
+        class(poland.map)
+        ncol(poland.map@data)
+        
+        poland.map@data <- poland.map@data[ , c(6,16)] #weźmy tylko nazwy województw oraz ich powierzchnie
+        names(poland.map@data) <- c("nazwa", "powierzchnia") 
+        
+        poland.map@data$nazwa <- c("opolskie", "świętokrzyskie", "kujawsko-pomorskie", "mazowieckie", "pomorskie", "śląskie",
+                                   "warmińsko-mazurskie", "zachodniopomorskie", "dolnośląskie", "wielkopolskie", "łódzkie",
+                                   "podlaskie", "małopolskie", "lubuskie", "podkarpackie", "lubelskie")
+        
+        sum(poland.map@data$powierzchnia) #sprawdźmy, czy powierzchnia zgadza się z pow. Polski :)
+        summary(poland.map)
+        
+        plot(poland.map)
+        plot(poland.map[poland.map$nazwa == "wielkopolskie", ], col = "blue", add = TRUE)
+        
+        #dodajmy kolumnę pomocniczą - numeracja województw
+        poland.map@data <- cbind(poland.map@data, 1:16)
+        head(poland.map@data)
+        
+        poland.rand.data <-
+            data.frame('nazwa' = unique(poland.map@data$nazwa),
+                       val = runif(length(poland.map), 0, 10))
+        poland.map@data <-
+            merge(poland.map@data,
+                  poland.rand.data,
+                  by = 'nazwa',
+                  all = T)
+        
+        #widzimy, że kolumna 1:16 wygląda inaczej niż na początku
+        head(poland.map@data)
+        
+        plot(poland.map)
+        plot(poland.map[poland.map@data$nazwa == 'wielkopolskie', ], col = "blue", add = TRUE)
+        
+        poland.map@data <- poland.map@data[order(poland.map@data$'1:16'), ]
+        
+        poland.map@data <- merge(poland.map@data, poland.rand.data, by='nazwa', all=T, sort=FALSE)
+        
+        poland.sp2 <- poland.sp[which(!clipped), ]
+        
+        poland.aggr <- aggregate(x = poland.sp2["eur.sp.name"], by = poland.map, FUN = length)
+        
+        #dodajmy interesujące nas dane do poland.map
+        poland.map@data$straze <- poland.aggr@data$eur.sp.name
+        head(poland.map@data, n=4)
+        
+        #nie potrzebujemy już poland.aggr
+        rm(poland.aggr)
+        
+        q <- cut(poland.map@data$straze, 
+                 breaks= c(quantile(poland.map@data$straze)), 
+                 include.lowest=T, 
+                 dig.lab=nchar(max(poland.map@data$straze)))
+        clr <- as.character(factor(q, labels = paste0("grey", seq(80, 20, -20))))
+        plot(poland.map, col = clr)
+        title("Liczba jednostek SP w województwach")
+        legend(legend = paste0(levels(q)[1:4]), fill = paste0("grey", seq(80, 20, -20)), "bottomleft")                                             
+        
+        
+        
+        
         
         EPSG <- make_EPSG()
         EPSG[grepl("WGS 84$", EPSG$note), ]
+        
         poland.map <- spTransform(poland.map, CRS("+init=epsg:4326")) #WGS-84
+        
         poland.map.gg <- fortify(poland.map, region="nazwa")
         head(poland.map.gg, n=2)
+        
         poland.map.gg <- merge(poland.map.gg, poland.map@data, by.x="id", by.y="nazwa", sort=FALSE)
         head(poland.map.gg, n=2)
         
