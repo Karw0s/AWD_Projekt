@@ -178,15 +178,6 @@ ui <- fluidPage(
                 sep = ""
             ),
             
-            # dateRangeInput("dates",h3("Date range"),
-            #                format = "yyyy",
-            #                start = "2009-01-01",
-            #                min = "2009-01-01",
-            #                end = "2016-12-31",
-            #                max = "2016-12-31",
-            #                startview = "year"),
-            
-            
             helpText("Wybierz obszar zainteresowania"),
             selectInput(
                 inputId = "obszar",
@@ -218,9 +209,15 @@ ui <- fluidPage(
         ),
         
         # Show a plot of the generated distribution
-        mainPanel(textOutput("selected_range"),
-                  plotlyOutput("dispPlot", height = 600),
-                  width = 9)
+        mainPanel(
+            textOutput("selected_range"),
+            tabsetPanel(
+                type = "tabs",
+                tabPanel("Wykres słupkowy", plotlyOutput("dispPlot", height = 600)),
+                tabPanel("Podglad danych", tableOutput("table"))
+            ), 
+            width = 9
+        )
     )
 )
 
@@ -243,7 +240,6 @@ server <- function(input, output) {
     })
     
     output$dispPlot <- renderPlotly({
-        
         dane_plot <- switch (input$rodzaj,
                              "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
                              "motocykle" = motocykle_ogolem,
@@ -323,8 +319,23 @@ server <- function(input, output) {
             scale_y_continuous(labels = comma)
         p <- ggplotly(p) %>% layout(margin = list(b = 160), legend = list(x = 100, y = 0.5),
                                     xaxis = list(title = ""), yaxis = list(title = "[szt]"))
-        
-        
+    })
+    
+    output$table <- renderTable({
+        dane_plot <- switch (input$rodzaj,
+                             "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "motocykle" = motocykle_ogolem,
+                             "samochody osobowe" = samochody_osobowe,
+                             "autobusy" = autobusy_ogolem,
+                             "samochody ciezarowe" = samochody_ciezarowe,
+                             "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "ciagniki samochodowe" = ciagniki_samochodowe,
+                             "ciagniki siodlowe" = ciagniki_siodlowe,
+                             "ciagniki rolnicze" = ciagniki_rolnicze,
+                             "motorowery" = motorowery,
+                             "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+        )
     })
 }
 
