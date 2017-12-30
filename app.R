@@ -306,7 +306,7 @@ server <- function(input, output) {
     
         p <- ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk))
         p +
-            geom_bar(stat = "identity", aes(fill = lata), position = "dodge") +
+            geom_bar(stat = "identity", aes(fill = lata), position = "dodge", color = "black") +
             theme(
                 axis.text.x = element_text(
                     angle = 90,
