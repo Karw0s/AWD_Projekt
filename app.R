@@ -8,6 +8,7 @@ library(sqldf)
 library(scales)
 library(ggplot2)
 library(readxl)
+library(plotly)
 
 #wczytywanie pliku z danymi
 daneXLS <- read_excel("data/dane.xls", sheet = "dane")
@@ -160,7 +161,7 @@ motocykle_o_pojemnosci_silnika_do_125_cm3 = sqldf("select
 # Define UI for application
 ui <- fluidPage(
     # Application title
-    titlePanel("Pojazdy w Polsce"),
+    titlePanel("Ilość pojazdów w Polsce"),
     
     # Sidebar
     sidebarLayout(
@@ -200,9 +201,9 @@ ui <- fluidPage(
                 label = "Rodzaje pojazdów",
                 choices = c(
                     "pojazdy samochodowe i ciagniki",
-                    "motocykle ogolem",
+                    "motocykle",
                     "samochody osobowe",
-                    "autobusy ogolem",
+                    "autobusy",
                     "samochody ciezarowe",
                     "samochody ciezorowo - osobowe",
                     "samochody specjalne (lacznie z sanitarnymi)",
@@ -218,7 +219,7 @@ ui <- fluidPage(
         
         # Show a plot of the generated distribution
         mainPanel(textOutput("selected_range"),
-                  plotOutput("distPlot"),
+                  plotlyOutput("dispPlot", height = 600),
                   width = 9)
     )
 )
@@ -226,7 +227,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-    rok <- function(start_year, end_year) {
+    przedzial_rok <- function(start_year, end_year) {
         index_one <- start_year - 2009
         if (start_year == end_year) {
             return((index_one + 1))
@@ -240,14 +241,14 @@ server <- function(input, output) {
     output$selected_range <- renderText({
         paste("Wybrano: ", input$rodzaj)
     })
-  
-    output$distPlot <- renderPlot({
+    
+    output$dispPlot <- renderPlotly({
         
         dane_plot <- switch (input$rodzaj,
                              "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
-                             "motocykle ogolem" = motocykle_ogolem,
+                             "motocykle" = motocykle_ogolem,
                              "samochody osobowe" = samochody_osobowe,
-                             "autobusy ogolem" = autobusy_ogolem,
+                             "autobusy" = autobusy_ogolem,
                              "samochody ciezarowe" = samochody_ciezarowe,
                              "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
                              "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
@@ -257,17 +258,17 @@ server <- function(input, output) {
                              "motorowery" = motorowery,
                              "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
         )
-     
+        
         obszar_rozp <- switch (input$obszar,
                                "Polska" = 1,
                                "Wojewodztwa" = 2:17
         )
-    
+        
         isPolska <- switch (input$obszar,
                             "Polska" = TRUE,
                             "Wojewodztwa" = FALSE
         )
-    
+        
         powtorz = NULL
         lata_powt = NULL
         if (isPolska) {
@@ -277,25 +278,25 @@ server <- function(input, output) {
             powtorz = 8
             lata_powt = 16
         }
-     
+        
         years <- input$bins
         
         rozpietosc <- years[2] - years[1]
         starting <- years[1] - 2009
-    
+        
         obszar_nazwa <- rep(dane_plot[obszar_rozp, 1], (rozpietosc + 1))
         
-        lata = NULL
+        rok = NULL
         
-        for (i in rok(years[1] - 1, years[2] - 1)) {
-            lata = c(lata, rep(as.character(2009 + i), lata_powt))
+        for (i in przedzial_rok(years[1] - 1, years[2] - 1)) {
+            rok = c(rok, rep(as.character(2009 + i), lata_powt))
         }
-    
-        srodek <- dane_plot[obszar_rozp, rok(years[1] + 1, years[2] + 1)]
+        
+        srodek <- dane_plot[obszar_rozp, przedzial_rok(years[1] + 1, years[2] + 1)]
         
         liczba_sztuk = NULL
         
-        for (variable in rok(years[1] + 1, years[2] + 1)) {
+        for (variable in przedzial_rok(years[1] + 1, years[2] + 1)) {
             liczba_sztuk <- c(liczba_sztuk, dane_plot[obszar_rozp, variable])
         }
         
@@ -303,10 +304,9 @@ server <- function(input, output) {
         
         dane_gg$woje <- factor(dane_gg$obszar_nazwa,
                                levels =  dane_plot[obszar_rozp, 1])
-    
-        p <- ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk))
-        p +
-            geom_bar(stat = "identity", aes(fill = lata), position = "dodge", color = "black") +
+
+        p <- ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk)) +
+            geom_bar(stat = "identity", aes(fill = rok), position = position_dodge(), color="black",size = .3) +
             theme(
                 axis.text.x = element_text(
                     angle = 90,
@@ -321,7 +321,10 @@ server <- function(input, output) {
             ylab("[szt]") +
             labs(fill= "Rok")+
             scale_y_continuous(labels = comma)
-    
+        p <- ggplotly(p) %>% layout(margin = list(b = 160), legend = list(x = 100, y = 0.5),
+                                    xaxis = list(title = ""), yaxis = list(title = "[szt]"))
+        
+        
     })
 }
 
