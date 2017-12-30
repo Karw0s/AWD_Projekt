@@ -262,7 +262,7 @@ server <- function(input, output) {
                         "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
     )
      
-    obszar <- switch (input$obszar,
+    obszar_rozp <- switch (input$obszar,
                       "Polska" = 1,
                       "Wojewodztwa" = 2:17
     )
@@ -299,7 +299,7 @@ server <- function(input, output) {
      #bins <- seq(min(x), max(x), length.out = input$bins + 1)
     
     
-    woje <- rep(dane_plot[obszar, 1], (rozpietosc+1))
+    obszar_nazwa <- rep(dane_plot[obszar_rozp, 1], (rozpietosc+1))
     
     lata = NULL
     
@@ -316,14 +316,14 @@ server <- function(input, output) {
     #          rep("2015", lata_powt),
     #          rep("2016", lata_powt))
     
-    srodek <- dane_plot[obszar, rok(years[1] + 1, years[2] + 1)]
+    srodek <- dane_plot[obszar_rozp, rok(years[1] + 1, years[2] + 1)]
     
-    vex = NULL
+    liczba_sztuk = NULL
     
     for (variable in rok(years[1] + 1, years[2] + 1)) {
-      vex <- c(vex, dane_plot[obszar, variable])
+        liczba_sztuk <- c(liczba_sztuk, dane_plot[obszar_rozp, variable])
     }
-    # vex <-c(srodek[, 1],
+    # liczba_sztuk <-c(srodek[, 1],
     #         srodek[, 2],
     #         srodek[, 3],
     #         srodek[, 4],
@@ -332,15 +332,16 @@ server <- function(input, output) {
     #         srodek[, 7],
     #         srodek[, 8])
     
-    dane_gg <- data.frame(woje, vex)
+    dane_gg <- data.frame(obszar_nazwa
+                         , liczba_sztuk)
     
-    dane_gg$woje <- factor(dane_gg$woje,
-                           levels =  dane_plot[obszar, 1])
+    dane_gg$woje <- factor(dane_gg$obszar_nazwa,
+                           levels =  dane_plot[obszar_rozp, 1])
     
-    p <-ggplot(dane_gg, aes(woje, vex))
+    p <-ggplot(dane_gg, aes(obszar_nazwa, liczba_sztuk))
     p +
     geom_bar(stat = "identity", aes(fill = lata), position = "dodge" ) + 
-    theme(axis.text.x = element_text(angle=90, face="bold", colour="black"), axis.title.x = element_blank()) +
+    theme(axis.text.x = element_text(angle=90, face="bold", colour="black", hjust = 1), axis.title.x = element_blank()) +
     xlab("Obszar") + 
     ylab("[szt]") +
     scale_y_continuous(labels = comma)
