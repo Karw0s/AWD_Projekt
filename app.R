@@ -191,18 +191,18 @@ ui <- fluidPage(
                 inputId = "rodzaj",
                 label = "Rodzaje pojazdów",
                 choices = c(
-                    "pojazdy samochodowe i ciagniki",
-                    "motocykle",
-                    "samochody osobowe",
-                    "autobusy",
-                    "samochody ciezarowe",
-                    "samochody ciezorowo - osobowe",
-                    "samochody specjalne (lacznie z sanitarnymi)",
-                    "ciagniki samochodowe",
-                    "ciagniki siodlowe",
-                    "ciagniki rolnicze",
-                    "motorowery",
-                    "motocykle o pojemnosci silnika do 125 cm3"
+                    "Pojazdy samochodowe i ciagniki",
+                    "Motocykle",
+                    "Samochody osobowe",
+                    "Autobusy",
+                    "Samochody ciezarowe",
+                    "Samochody ciezorowo - osobowe",
+                    "Samochody specjalne (lacznie z sanitarnymi)",
+                    "Ciagniki samochodowe",
+                    "Ciagniki siodlowe",
+                    "Ciagniki rolnicze",
+                    "Motorowery",
+                    "Motocykle o pojemnosci silnika do 125 cm3"
                 )
             )
             
@@ -241,18 +241,18 @@ server <- function(input, output) {
     
     output$dispPlot <- renderPlotly({
         dane_plot <- switch (input$rodzaj,
-                             "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
-                             "motocykle" = motocykle_ogolem,
-                             "samochody osobowe" = samochody_osobowe,
-                             "autobusy" = autobusy_ogolem,
-                             "samochody ciezarowe" = samochody_ciezarowe,
-                             "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
-                             "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
-                             "ciagniki samochodowe" = ciagniki_samochodowe,
-                             "ciagniki siodlowe" = ciagniki_siodlowe,
-                             "ciagniki rolnicze" = ciagniki_rolnicze,
-                             "motorowery" = motorowery,
-                             "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+                             "Pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "Motocykle" = motocykle_ogolem,
+                             "Samochody osobowe" = samochody_osobowe,
+                             "Autobusy" = autobusy_ogolem,
+                             "Samochody ciezarowe" = samochody_ciezarowe,
+                             "Samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "Samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "Ciagniki samochodowe" = ciagniki_samochodowe,
+                             "Ciagniki siodlowe" = ciagniki_siodlowe,
+                             "Ciagniki rolnicze" = ciagniki_rolnicze,
+                             "Motorowery" = motorowery,
+                             "Motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
         )
         
         obszar_rozp <- switch (input$obszar,
@@ -323,18 +323,18 @@ server <- function(input, output) {
     
     output$table <- renderTable({
         dane_plot <- switch (input$rodzaj,
-                             "pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
-                             "motocykle" = motocykle_ogolem,
-                             "samochody osobowe" = samochody_osobowe,
-                             "autobusy" = autobusy_ogolem,
-                             "samochody ciezarowe" = samochody_ciezarowe,
-                             "samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
-                             "samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
-                             "ciagniki samochodowe" = ciagniki_samochodowe,
-                             "ciagniki siodlowe" = ciagniki_siodlowe,
-                             "ciagniki rolnicze" = ciagniki_rolnicze,
-                             "motorowery" = motorowery,
-                             "motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+                             "Pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "Motocykle" = motocykle_ogolem,
+                             "Samochody osobowe" = samochody_osobowe,
+                             "Autobusy" = autobusy_ogolem,
+                             "Samochody ciezarowe" = samochody_ciezarowe,
+                             "Samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "Samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "Ciagniki samochodowe" = ciagniki_samochodowe,
+                             "Ciagniki siodlowe" = ciagniki_siodlowe,
+                             "Ciagniki rolnicze" = ciagniki_rolnicze,
+                             "Motorowery" = motorowery,
+                             "Motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
         )
     })
 }
