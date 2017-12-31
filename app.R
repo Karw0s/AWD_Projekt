@@ -1,6 +1,7 @@
 #
-# TODO: dodac wykres kolowy pokazujacy podzial pojazdow w polsce i w poszczegolnych wojewodztwach
-# ToDO: dodac zmikajace opcje
+# Autor: Michał Karwowski
+# Grupa: I5B3S1
+# Temat: Ilość pojazdów w Polsce na przestrzeni 2009 - 2016
 #
 
 library(shiny)
