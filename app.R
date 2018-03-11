@@ -1,7 +1,7 @@
 #
-# Autor: Michał Karwowski
+# Autor: Michal Karwowski
 # Grupa: I5B3S1
-# Temat: Ilość pojazdów w Polsce na przestrzeni 2009 - 2016
+# Temat: Ilolsc pojazdow w Polsce na przestrzeni 2009 - 2016
 #
 
 library(shiny)
@@ -162,22 +162,14 @@ motocykle_o_pojemnosci_silnika_do_125_cm3 = sqldf("select
 # Define UI for application
 ui <- fluidPage(
     # Application title
-    titlePanel("Ilość pojazdów w Polsce"),
+    titlePanel("Ilolść pojazdów w Polsce"),
     
     # Sidebar
     sidebarLayout(
         sidebarPanel(
             width = 3,
             
-            helpText("Wybierz przedział czasowy:"),
-            sliderInput(
-                "bins",
-                "Zakres czasu:",
-                min = 2009,
-                max = 2016,
-                value = c(2009, 2016),
-                sep = ""
-            ),
+            
             
             helpText("Wybierz obszar zainteresowania"),
             selectInput(
@@ -190,7 +182,7 @@ ui <- fluidPage(
             helpText("Wybierz rodzaj pojazdów"),
             selectInput(
                 inputId = "rodzaj",
-                label = "Rodzaje pojazdów",
+                label = "Rodzaje pojazdow",
                 choices = c(
                     "Pojazdy samochodowe i ciagniki",
                     "Motocykle",
@@ -214,8 +206,30 @@ ui <- fluidPage(
             textOutput("selected_range"),
             tabsetPanel(
                 type = "tabs",
-                tabPanel("Wykres słupkowy", plotlyOutput("dispPlot", height = 600)),
-                tabPanel("Podglad danych", tableOutput("table"))
+                tabPanel("Wykres słupkowy", 
+                         helpText("Wybierz przedział czasowy:"),
+                         sliderInput(
+                             "bins",
+                             "Zakres czasu:",
+                             min = 2009,
+                             max = 2016,
+                             value = c(2009, 2016),
+                             sep = ""
+                         ),
+                         plotlyOutput("dispPlot", height = 600)),
+                tabPanel(
+                    "Wykres kołowy",
+                    helpText("Wybierz przedział czasowy:"),
+                    sliderInput(
+                        "pieBins",
+                        "Rok:",
+                        min = 2009,
+                        max = 2016,
+                        value = 2016,
+                        sep = ""
+                    ),
+                    plotOutput("dispPiePlot", height = 600)),
+                tabPanel("Podgląd danych", tableOutput("table"))
             ), 
             width = 9
         )
@@ -320,6 +334,48 @@ server <- function(input, output) {
             scale_y_continuous(labels = comma)
         p <- ggplotly(p) %>% layout(margin = list(b = 160), legend = list(x = 100, y = 0.5),
                                     xaxis = list(title = ""), yaxis = list(title = "[szt]"))
+    })
+    
+    output$dispPiePlot <- renderPlot({
+        dane_plot <- switch (input$rodzaj,
+                             "Pojazdy samochodowe i ciagniki" = pojazdy_samochodowe_i_ciagniki,
+                             "Motocykle" = motocykle_ogolem,
+                             "Samochody osobowe" = samochody_osobowe,
+                             "Autobusy" = autobusy_ogolem,
+                             "Samochody ciezarowe" = samochody_ciezarowe,
+                             "Samochody ciezorowo - osobowe" = samochody_ciezarowo_osobowe,
+                             "Samochody specjalne (lacznie z sanitarnymi)" = samochody_specjalne,
+                             "Ciagniki samochodowe" = ciagniki_samochodowe,
+                             "Ciagniki siodlowe" = ciagniki_siodlowe,
+                             "Ciagniki rolnicze" = ciagniki_rolnicze,
+                             "Motorowery" = motorowery,
+                             "Motocykle o pojemnosci silnika do 125 cm3" = motocykle_o_pojemnosci_silnika_do_125_cm3
+        )
+        
+        range <- switch (input$obszar,
+                         "Polska" = 1,
+                         "Wojewodztwa" = 2:17)
+        
+        isPolska <- switch (input$obszar,
+                            "Polska" = TRUE,
+                            "Wojewodztwa" = FALSE)
+        
+        starting <- input$pieBins - 2009
+        
+        ggplot(dane_plot[range,],
+               aes(
+                   x = "",
+                   y = dane_plot[range, starting + 2],
+                   fill = dane_plot[range, 1]
+               )) +
+            geom_bar(width = 1, stat = "identity") +
+            coord_polar("y", start = 0) +
+            xlab("") +
+            ylab("[szt]") +
+            labs(fill = "Obszar")+
+            scale_y_continuous(labels = comma)
+        
+        
     })
     
     output$table <- renderTable({
